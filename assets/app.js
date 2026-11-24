@@ -149,15 +149,28 @@
 
   // ---------- 1f. match + 1g. order ----------
   if ($('#order')) {
-    const fixes = shuffle(D.pairs.map((p, i) => [p[1], i]));
-    $('#mFix').innerHTML = fixes.map(([f, i]) => `<button class="mc" data-i="${i}">${esc(f)}</button>`).join('');
+    const N = D.pairs.length, mFb = $('#mFb'), mBox = $('#match');
     let sel = null, matched = 0;
-    $$('#mCause .mc').forEach(b => b.onclick = () => { if (b.classList.contains('done')) return; $$('#mCause .mc').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = b; $('#mFb').textContent = 'والآن اختر الحل المناسب'; });
-    $$('#mFix .mc').forEach(b => b.onclick = () => {
-      if (!sel) { $('#mFb').textContent = 'اختر السبب أولاً'; return; } if (b.classList.contains('done')) return;
-      if (b.dataset.i === sel.dataset.i) { b.classList.add('done'); sel.classList.remove('sel'); sel.classList.add('done'); sel = null; matched++; $('#mFb').textContent = matched === D.pairs.length ? 'أحسنت يا محقّق! حللت القضية كاملة 🕵️‍♂️' : 'صحيح! تابع ✓'; }
-      else { b.classList.add('wrong'); setTimeout(() => b.classList.remove('wrong'), 450); $('#mFb').textContent = 'ليس هذا الحل، فكّر مرة أخرى'; }
-    });
+    const say = (t, k) => { mFb.textContent = t; mFb.className = 'mfb' + (k ? ' ' + k : ''); };
+    const pick = b => { $$('#mCause .mc').forEach(x => x.classList.remove('sel')); sel = b; if (b) b.classList.add('sel'); mBox.classList.toggle('picking', !!b); };
+    const mBuild = () => {
+      matched = 0; pick(null);
+      $('#mFix').innerHTML = shuffle(D.pairs.map((p, i) => [p[1], i])).map(([f, i]) => `<button class="mc" data-i="${i}">${esc(f)}</button>`).join('');
+      $$('#mCause .mc').forEach(b => { b.classList.remove('done', 'wrong'); b.removeAttribute('style'); b.removeAttribute('aria-disabled'); b.querySelectorAll('.mbadge').forEach(t => t.parentNode.removeChild(t)); });
+      $('#mCount').textContent = `0 من ${N} أزواج`; say('ابدأ باختيار سبب من عمود الأسباب');
+      $$('#mCause .mc').forEach(b => b.onclick = () => { if (b.classList.contains('done')) return; pick(b); say('ممتاز! الآن اختر الحل المناسب من عمود الحلول 💡'); });
+      $$('#mFix .mc').forEach(b => b.onclick = () => {
+        if (b.classList.contains('done')) return;
+        if (!sel) { say('اختر السبب أولاً من عمود الأسباب 🔍', 'warn'); mBox.classList.add('nudge'); setTimeout(() => mBox.classList.remove('nudge'), 700); return; }
+        if (b.dataset.i === sel.dataset.i) {
+          matched++;
+          [sel, b].forEach(x => { x.classList.add('done'); x.style.setProperty('--pc', `var(--p${matched})`); x.style.setProperty('--pt', `var(--p${matched}t)`); x.setAttribute('aria-disabled', 'true'); x.insertAdjacentHTML('afterbegin', `<span class="mbadge" aria-hidden="true">${matched}</span>`); });
+          pick(null); $('#mCount').textContent = `${matched} من ${N} أزواج`;
+          say(matched === N ? 'أحسنت يا محقّق! حللت القضية كاملة 🕵️‍♂️' : `صحيح ✓ الزوج رقم ${matched} بنفس اللون والرقم. اختر سبباً آخر`, 'good');
+        } else { b.classList.add('wrong'); setTimeout(() => b.classList.remove('wrong'), 450); say('ليس هذا الحل، فكّر مرة أخرى', 'warn'); }
+      });
+    };
+    mBuild(); $('#mReset').onclick = mBuild;
     let next = 0;
     const build = () => {
       next = 0; $('#oFb').textContent = '';

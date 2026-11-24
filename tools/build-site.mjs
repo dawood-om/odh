@@ -87,7 +87,8 @@ const PAIRS = [['بقايا طعام بين الأسنان', 'الخيط يوم�
 const bb = T.breath, inj = T.injury;
 const sMatch = block('breath', bb.vars, `${H('', 'لعبة المطابقة', 'المحقّق سنّون: رائحة الفم', 'اختر السبب ثم الحل المناسب له')}
 <div class="story"><span>${hamad('sad')}</span><p>حمد لاحظ أن أصدقاءه يبتعدون عنه في الفسحة. ساعد المحقّق سنّون في معرفة السبب والحل.</p></div>
-<div class="match"><div class="mcol" id="mCause">${PAIRS.map(([c], i) => `<button class="mc" data-i="${i}">${c}</button>`).join('')}</div><div class="mcol" id="mFix"></div></div><p class="mfb" id="mFb" aria-live="polite"></p>
+<p class="m-how"><span><b>1</b>اضغط على السبب</span><span><b>2</b>ثم اضغط على الحل المناسب له</span></p>
+<div class="match" id="match"><div class="mcol m-cause"><h3 class="mh">🔍 الأسباب</h3><div class="mlist" id="mCause">${PAIRS.map(([c], i) => `<button class="mc" data-i="${i}">${c}</button>`).join('')}</div></div><div class="mcol m-fix"><h3 class="mh">💡 الحلول</h3><div class="mlist" id="mFix"></div></div></div><div class="m-bar"><span class="m-count" id="mCount">0 من ${PAIRS.length} أزواج</span><button class="btn ghost" id="mReset">أعد اللعب</button></div><p class="mfb" id="mFb" aria-live="polite">ابدأ باختيار سبب من عمود الأسباب</p>
 <p class="fact">💡 ${bb.fact}</p>`);
 const sOrder = block('injury', inj.vars, `${H('', 'فريق الإسعاف السريع', inj.title, 'رتّب خطوات إنقاذ السن الدائم المخلوع: اضغط عليها بالترتيب الصحيح')}
 <div class="order" id="order"></div><p class="ofb" id="oFb" aria-live="polite"></p><button class="btn ghost" id="oReset">أعد المحاولة</button>
